@@ -1,32 +1,45 @@
 import numpy as np
-from matplotlib import pyplot as plt
 import wave
+import matplotlib.pyplot as plt
 import struct
 
+#Sine_params
+frequency = 1
+amplitude = int(2**14)
+sample_rate = 48000.0
+no_of_samples = int(5*sample_rate) # no of samples = sampling rate * time interval we need
+
+#file_details
+file_name = 'Sin_'+str(frequency)+'.wav'
+
+#wav_file_details
+nframes=no_of_samples
+comptype="NONE" #compressed_type
+compname="not compressed" #compressed_type
+nchannels=1 #mono
+sampwidth=2 #16_bit
+
 def main():
+    sin_wave = [np.sin(2*np.pi* frequency *(x/sample_rate)) for x in range(no_of_samples)]
+    #+ np.sin(2*np.pi* (frequency+500) * (x/sample_rate))
+    #plt.plot(np.arange(no_of_samples), sin_wave);
+    #plt.show();
 
-    fp = wave.open('Sin_1.wav', 'rb')
-    sampling_rate = fp.getframerate()
-    n_frames = fp.getnframes()
-    sample_width = fp.getsampwidth()
-    time_lenght = n_frames/sampling_rate
-    frames = []
-    print('Sampling rate: ', sampling_rate,' frames per second.')
-    print('Number of frames: ', n_frames)
-    print('Lenght: ',time_lenght, 's')
-    print('Sample Width: ', sample_width, ' byte')
-    for x in range(n_frames):
-        d = fp.readframes(1)
-        temp = struct.unpack('h', d)
-        frames.append(temp[0]/(2**(8*sample_width-1)))
+    #print(sin_wave)
+    print('Sin wave is calculated and opening wav file.')
+    wav_file = wave.open(file_name, 'wb')
+    wav_file.setparams((nchannels, sampwidth, int(sample_rate), nframes, comptype, compname))
+    #size = len(sin_wave)
+    #i = 0;
+    print('Writing in the file.')
+    for s in sin_wave:
+        #percentage = i/size *100
+        #print('Percentage complete: ', percentage,'%.')
+        wav_file.writeframes(struct.pack('h', int(s*amplitude)))
+    #    i = i+1
 
-    #print(type(frames))
-
-    plt.plot(np.arange(n_frames), frames)
-    plt.show();
-    print(max(frames))
-
-
+    wav_file.close()
+    print("Done Creating Wave file.")
 
 if __name__ == '__main__':
     main()
